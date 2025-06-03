@@ -12,14 +12,32 @@
     src="https://datafa.st/js/script.js">
   </script>
 
-  <!-- ✅ Redirection après 1,5s avec ?ref=... -->
+  <!-- ✅ Redirection avec cookies DataFast dans l'URL -->
   <script>
     window.addEventListener('DOMContentLoaded', () => {
-      console.log("⏳ Attente avant redirection...");
+      console.log("⏳ Attente avant lecture des cookies...");
+
       setTimeout(() => {
-        console.log("➡️ Redirection vers CheckoutPage...");
-        window.location.href = "https://tool-monsters.checkoutpage.com/test-rubs?ref=toolmonsters-lab";
-      }, 1500); // Laisse le temps au script DataFast de poser le cookie
+        // Récupère les cookies DataFast
+        const visitorId = document.cookie
+          .split("; ")
+          .find(row => row.startsWith("datafast_visitor_id="))
+          ?.split("=")[1];
+
+        const sessionId = document.cookie
+          .split("; ")
+          .find(row => row.startsWith("datafast_session_id="))
+          ?.split("=")[1];
+
+        console.log("🧪 Visitor ID:", visitorId);
+        console.log("🧪 Session ID:", sessionId);
+
+        // Construit l’URL de redirection avec les bons paramètres
+        const redirectUrl = `https://tool-monsters.checkoutpage.com/test-rubs?ref=toolmonsters-lab&datafast_visitor_id=${visitorId}&datafast_session_id=${sessionId}`;
+
+        console.log("➡️ Redirection vers :", redirectUrl);
+        window.location.href = redirectUrl;
+      }, 1500); // Laisse 1,5s pour charger le script DataFast et poser les cookies
     });
   </script>
 
