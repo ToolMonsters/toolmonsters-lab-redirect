@@ -1,94 +1,54 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Merci pour votre achat !</title>
 
-  <!-- Script DataFast -->
+  <!-- ✅ Script DataFast -->
   <script
+    defer
     data-website-id="683f535ef1a0753281970df8"
     data-domain="toolmonsters-lab.com"
     src="https://datafa.st/js/script.js">
   </script>
 
-  <script>
-    window.addEventListener('load', () => {
-      const params = new URLSearchParams(window.location.search);
-      
-      // Récupération de tous les paramètres critiques
-      const purchaseData = {
-        email: params.get("email"),
-        amount: parseFloat(params.get("amount")) || 0,
-        currency: params.get("currency") || "EUR",
-        visitor_id: params.get("datafast_visitor_id"),
-        session_id: params.get("datafast_session_id"),
-        ref: params.get("ref")
-      };
-
-      console.log("🔍 Paramètres détectés :", purchaseData);
-
-      const interval = setInterval(() => {
-        if (typeof window.datafast === "function") {
-          try {
-            // Conversion du montant en cents
-            const amountInCents = Math.round(purchaseData.amount * 100);
-            
-            window.datafast("payment", {
-              email: purchaseData.email,
-              amount: amountInCents,
-              currency: purchaseData.currency.toLowerCase(),
-              _visitor_id: purchaseData.visitor_id,
-              _session_id: purchaseData.session_id,
-              _ref: purchaseData.ref
-            });
-            
-            console.log("✅ Événement envoyé à DataFast :", {
-              amount: amountInCents,
-              currency: purchaseData.currency,
-              email: purchaseData.email,
-              ref: purchaseData.ref
-            });
-          } catch (error) {
-            console.error("❌ Erreur lors de l'envoi :", error);
-          }
-          clearInterval(interval);
-        }
-      }, 200);
-
-      setTimeout(() => {
-        if (typeof window.datafast !== "function") {
-          console.warn("⚠️ DataFast non détecté après 5s");
-          clearInterval(interval);
-        }
-      }, 5000);
-    });
-  </script>
-
   <style>
-    body { 
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      text-align: center; 
+    body {
+      font-family: sans-serif;
+      text-align: center;
       padding: 4rem;
-      background: #f8f9fa;
-      color: #2d3436;
+      background: #fff;
     }
-    h1 { color: #2e8b57; }
   </style>
 </head>
 <body>
-  <h1>🎉 Achat confirmé !</h1>
-  <p>Un email de confirmation vient d'être envoyé à <strong id="email-display"></strong>.</p>
-  <p>Merci pour votre confiance 🙏</p>
+  <h1>✅ Merci pour votre achat !</h1>
+  <p>Votre commande a bien été enregistrée.</p>
 
   <script>
-    // Affichage dynamique de l'email
-    const emailElement = document.getElementById("email-display");
-    const urlEmail = new URLSearchParams(window.location.search).get("email");
-    if (urlEmail) {
-      emailElement.textContent = urlEmail;
-    } else {
-      emailElement.textContent = "(vérifiez votre boîte mail)";
-    }
+    const params = new URLSearchParams(window.location.search);
+    const email = params.get("email");
+    const visitorId = params.get("datafast_visitor_id");
+    const sessionId = params.get("datafast_session_id");
+    const stripeId = params.get("stripe_payment_id");
+
+    console.log("📦 Email param:", email);
+    console.log("📦 Stripe Payment ID:", stripeId);
+
+    // Attendre que le script DataFast soit chargé
+    const waitForDatafast = setInterval(() => {
+      if (typeof window.datafast === "function") {
+        clearInterval(waitForDatafast);
+        console.log("✅ datafast est prêt, envoi du paiement...");
+
+        window.datafast("payment", {
+          email,
+          stripe_payment_id: stripeId,
+          datafast_visitor_id: visitorId,
+          datafast_session_id: sessionId
+        });
+      }
+    }, 200);
   </script>
 </body>
 </html>
