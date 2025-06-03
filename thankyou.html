@@ -13,10 +13,16 @@
   </script>
 
   <script>
-    // Remplace par une vraie adresse si tu peux la récupérer dynamiquement
-    window.datafast("payment", {
-      email: "test@example.com"
-    });
+    // Récupère l'e-mail depuis l'URL
+    const params = new URLSearchParams(window.location.search);
+    const email = params.get("email");
+
+    if (email) {
+      console.log("✅ Tracking paiement avec email :", email);
+      window.datafast("payment", { email });
+    } else {
+      console.warn("❌ Aucun email trouvé dans l’URL.");
+    }
   </script>
 
   <style>
