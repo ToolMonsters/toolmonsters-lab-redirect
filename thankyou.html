@@ -29,24 +29,35 @@
     // Récupération des paramètres d'URL
     const params = new URLSearchParams(window.location.search);
     const email = params.get("email");
-    const amount = params.get("amount");
+    const amount = params.get("amount") || "0";
 
-    // Client-side tracking uniquement
-    const waitForDatafast = setInterval(() => {
-      if (typeof window.datafast === "function") {
+    // Vérifie que l'email est présent
+    if (!email) {
+      console.warn("❌ Email manquant dans l'URL — tracking DataFast non déclenché.");
+    } else {
+      // Timeout de sécurité au bout de 5s
+      let timeout = setTimeout(() => {
+        console.warn("⏱️ Timeout : DataFast ne s'est pas chargé à temps.");
         clearInterval(waitForDatafast);
-        
-        // Envoie l'événement payment natif
-        window.datafast("payment", {
-          email: email,
-          amount: amount,
-          currency: "USD", // À adapter
-          country: "auto"  // Géolocalisation automatique
-        });
-        
-        console.log("🎯 Paiement tracké côté client");
-      }
-    }, 300);
+      }, 5000);
+
+      // Attente du chargement de DataFast
+      const waitForDatafast = setInterval(() => {
+        if (typeof window.datafast === "function") {
+          clearInterval(waitForDatafast);
+          clearTimeout(timeout);
+
+          window.datafast("payment", {
+            email: email,
+            amount: amount,
+            currency: "USD",
+            country: "auto"
+          });
+
+          console.log("🎯 Paiement tracké côté client pour :", email);
+        }
+      }, 300);
+    }
   </script>
 </body>
 </html>
