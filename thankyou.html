@@ -39,13 +39,18 @@
     const waitForDatafast = setInterval(() => {
       if (typeof window.datafast === "function") {
         clearInterval(waitForDatafast);
-        console.log("✅ datafast est prêt, envoi du paiement...");
+        console.log("✅ DataFast est prêt");
 
+        // ✅ Étape 1 : reconnecter la session
+        window.datafast("identify", {
+          visitor_id: visitorId,
+          session_id: sessionId
+        });
+
+        // ✅ Étape 2 : envoyer l'événement de paiement
         window.datafast("payment", {
           email,
-          stripe_payment_id: stripeId,
-          datafast_visitor_id: visitorId,
-          datafast_session_id: sessionId
+          stripe_payment_id: stripeId
         });
       }
     }, 200);
