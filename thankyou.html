@@ -47,11 +47,14 @@
           session_id: sessionId
         });
 
-        // ✅ Étape 2 : envoyer l'événement de paiement
+        // ✅ Étape 2 : envoyer l'événement de paiement avec referrer manuel
         window.datafast("payment", {
           email,
-          stripe_payment_id: stripeId
+          stripe_payment_id: stripeId,
+          referrer: "https://toolmonsters-lab.com"
         });
+
+        console.log("🎯 Événement 'payment' envoyé avec attribution referrer");
       }
     }, 200);
   </script>
