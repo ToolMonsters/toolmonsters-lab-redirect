@@ -36,20 +36,22 @@
       if (typeof window.datafast === "function") {
         clearInterval(waitForDatafast);
 
-        // 👇 Reconnecter la session DataFast
+        // 👇 Étape 1 : reconnecter session
         window.datafast("identify", {
           visitor_id: visitorId,
           session_id: sessionId
         });
 
-        // 👇 Envoyer l’événement de paiement
-        window.datafast("payment", {
-          email,
-          stripe_payment_id: stripeId,
-          referrer: "https://toolmonsters-lab.com"
-        });
+        // 👇 Étape 2 : attendre 200ms, puis envoyer le paiement
+        setTimeout(() => {
+          window.datafast("payment", {
+            email,
+            stripe_payment_id: stripeId,
+            referrer: "https://toolmonsters-lab.com"
+          });
 
-        console.log("🎯 Paiement bien envoyé à DataFast !");
+          console.log("🎯 Paiement bien envoyé à DataFast !");
+        }, 200);
       }
     }, 300);
   </script>
