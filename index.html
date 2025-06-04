@@ -15,7 +15,7 @@
   <!-- ✅ Redirection avec cookies DataFast + ref -->
   <script>
     window.addEventListener('DOMContentLoaded', () => {
-      console.log("⏳ Attente avant lecture des cookies...");
+      console.log("⏳ Attente de 3 secondes pour laisser le script DataFast poser les cookies...");
 
       setTimeout(() => {
         const getCookie = (name) =>
@@ -30,13 +30,17 @@
         console.log("🧪 Visitor ID:", visitorId);
         console.log("🧪 Session ID:", sessionId);
 
-        const base = "https://tool-monsters.checkoutpage.com/test-rubs";
-        const ref = "toolmonsters-lab"; // 👈 change ce nom selon le domaine
-        const url = `${base}?ref=${ref}&datafast_visitor_id=${visitorId}&datafast_session_id=${sessionId}`;
+        if (visitorId && sessionId) {
+          const base = "https://tool-monsters.checkoutpage.com/test-rubs";
+          const ref = "toolmonsters-lab";
+          const url = `${base}?ref=${ref}&datafast_visitor_id=${visitorId}&datafast_session_id=${sessionId}`;
 
-        console.log("➡️ Redirection vers :", url);
-        window.location.href = url;
-      }, 1500); // Laisse 1,5s au script DataFast pour poser les cookies
+          console.log("➡️ Redirection vers :", url);
+          window.location.href = url;
+        } else {
+          console.warn("❌ Cookies DataFast non trouvés après 3s. Redirection annulée.");
+        }
+      }, 3000); // Augmenté à 3 secondes
     });
   </script>
 
