@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
   <meta charset="UTF-8">
   <title>Merci pour votre achat !</title>
 
-  <!-- ✅ Script DataFast -->
+  <!-- ✅ Script DataFast (utile pour tracking global) -->
   <script
     defer
     data-website-id="683f535ef1a0753281970df8"
@@ -26,37 +26,42 @@
   <p>Votre commande a bien été enregistrée.</p>
 
   <script>
+    // Récupération des paramètres depuis l'URL
     const params = new URLSearchParams(window.location.search);
     const email = params.get("email");
     const visitorId = params.get("datafast_visitor_id");
     const sessionId = params.get("datafast_session_id");
     const stripeId = params.get("stripe_payment_id");
 
-    console.log("📦 Email param:", email);
-    console.log("📦 Stripe Payment ID:", stripeId);
+    // ✅ Token API DataFast sécurisé (copié depuis ton compte)
+    const DATAFAST_API_KEY = "df_c436ae46e304995e97ad938e5d095ecbfef92888fbd99d98";
 
-    // Attendre que le script DataFast soit chargé
-    const waitForDatafast = setInterval(() => {
-      if (typeof window.datafast === "function") {
-        clearInterval(waitForDatafast);
-        console.log("✅ DataFast est prêt");
+    // ✅ Payload envoyé à l’API DataFast
+    const payload = {
+      website_id: "683f535ef1a0753281970df8",
+      event_name: "payment",
+      email,
+      stripe_payment_id: stripeId,
+      datafast_visitor_id: visitorId,
+      datafast_session_id: sessionId,
+      referrer: "https://toolmonsters-lab.com"
+    };
 
-        // ✅ Étape 1 : reconnecter la session
-        window.datafast("identify", {
-          visitor_id: visitorId,
-          session_id: sessionId
-        });
-
-        // ✅ Étape 2 : envoyer l'événement de paiement avec referrer manuel
-        window.datafast("payment", {
-          email,
-          stripe_payment_id: stripeId,
-          referrer: "https://toolmonsters-lab.com"
-        });
-
-        console.log("🎯 Événement 'payment' envoyé avec attribution referrer");
-      }
-    }, 200);
+    // 🔁 Appel API DataFast pour forcer l’attribution
+    fetch("https://datafa.st/api/event", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${DATAFAST_API_KEY}`
+      },
+      body: JSON.stringify(payload)
+    })
+    .then(res => {
+      console.log("🎯 Conversion envoyée à DataFast :", res.status);
+    })
+    .catch(err => {
+      console.error("❌ Erreur lors de l’envoi à DataFast :", err);
+    });
   </script>
 </body>
 </html>
