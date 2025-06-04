@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <title>Merci pour votre achat !</title>
 
-  <!-- Script DataFast pour stats globales -->
+  <!-- Script DataFast -->
   <script
     defer
     data-website-id="683f535ef1a0753281970df8"
@@ -32,36 +32,24 @@
     const visitorId = params.get("datafast_visitor_id");
     const sessionId = params.get("datafast_session_id");
 
-    // ✅ 1. Envoi vers ton Webhook Make.com
-    fetch("https://hook.eu2.make.com/aomre72w2d99yev2eqy8ahmf1xkzhh1z", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        email: email,
-        stripe_payment_id: stripeId,
-        datafast_visitor_id: visitorId,
-        datafast_session_id: sessionId
-      })
-    })
-    .then(() => {
-      console.log("📨 Paiement envoyé à Make.com");
-    })
-    .catch(err => {
-      console.error("❌ Erreur Make:", err);
-    });
-
-    // ✅ 2. (Optionnel) Event DataFast côté client
     const waitForDatafast = setInterval(() => {
       if (typeof window.datafast === "function") {
         clearInterval(waitForDatafast);
+
+        // 👇 Reconnecter la session DataFast
+        window.datafast("identify", {
+          visitor_id: visitorId,
+          session_id: sessionId
+        });
+
+        // 👇 Envoyer l’événement de paiement
         window.datafast("payment", {
-          email: email,
+          email,
           stripe_payment_id: stripeId,
           referrer: "https://toolmonsters-lab.com"
         });
-        console.log("🎯 Paiement aussi envoyé à DataFast (client-side)");
+
+        console.log("🎯 Paiement bien envoyé à DataFast !");
       }
     }, 300);
   </script>
