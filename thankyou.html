@@ -31,8 +31,32 @@
     const visitorId = params.get("datafast_visitor_id");
     const sessionId = params.get("datafast_session_id");
     const amount = params.get("amount"); // À ajouter dans l'URL de redirection
+    const email = params.get("email");
+    const stripePaymentId = params.get("stripe_payment_id");
 
-    // Envoi à l'API DataFast
+    // 1. Client-side tracking (événement payment)
+    // Attends que le script DataFast soit chargé
+    const waitForDatafast = setInterval(() => {
+      if (typeof window.datafast === "function") {
+        clearInterval(waitForDatafast);
+        // Reconnecte la session si besoin
+        if (visitorId && sessionId) {
+          window.datafast("identify", {
+            visitor_id: visitorId,
+            session_id: sessionId
+          });
+        }
+        // Envoie l'événement payment
+        window.datafast("payment", {
+          email: email,
+          amount: amount,
+          stripe_payment_id: stripePaymentId
+        });
+        console.log("🎯 Paiement tracké côté client");
+      }
+    }, 300);
+
+    // 2. API DataFast (optionnel, si tu veux doubler le tracking)
     if (visitorId && sessionId) {
       fetch('https://datafa.st/api/v1/goals', {
         method: 'POST',
@@ -48,16 +72,16 @@
           datafast_session_id: sessionId,
           metadata: {
             source: "toolmonsters-lab.com",
-            stripe_payment_id: params.get("stripe_payment_id"),
-            email: params.get("email")
+            stripe_payment_id: stripePaymentId,
+            email: email
           }
         })
       })
       .then(response => {
         if (!response.ok) throw new Error('Erreur DataFast');
-        console.log('🎯 Conversion trackée avec succès');
+        console.log('🎯 Conversion trackée via API');
       })
-      .catch(error => console.error('❌ Erreur tracking:', error));
+      .catch(error => console.error('❌ Erreur tracking API:', error));
     }
   </script>
 </body>
