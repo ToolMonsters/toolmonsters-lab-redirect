@@ -26,34 +26,39 @@
   <p>Votre commande a bien été enregistrée.</p>
 
   <script>
+    // Récupération des paramètres d'URL
     const params = new URLSearchParams(window.location.search);
-    const email = params.get("email");
-    const stripeId = params.get("stripe_payment_id");
     const visitorId = params.get("datafast_visitor_id");
     const sessionId = params.get("datafast_session_id");
+    const amount = params.get("amount"); // À ajouter dans l'URL de redirection
 
-    const waitForDatafast = setInterval(() => {
-      if (typeof window.datafast === "function") {
-        clearInterval(waitForDatafast);
-
-        // 👇 Étape 1 : reconnecter session
-        window.datafast("identify", {
-          visitor_id: visitorId,
-          session_id: sessionId
-        });
-
-        // 👇 Étape 2 : attendre 200ms, puis envoyer le paiement
-        setTimeout(() => {
-          window.datafast("payment", {
-            email,
-            stripe_payment_id: stripeId,
-            referrer: "https://toolmonsters-lab.com"
-          });
-
-          console.log("🎯 Paiement bien envoyé à DataFast !");
-        }, 200);
-      }
-    }, 300);
+    // Envoi à l'API DataFast
+    if (visitorId && sessionId) {
+      fetch('https://datafa.st/api/v1/goals', {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer df_941b4888e9dc3b611ac393980393954b54601bbb7f8f4aa7',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          name: "conversion",
+          goal_name: "purchase",
+          value: amount || 1.00,
+          datafast_visitor_id: visitorId,
+          datafast_session_id: sessionId,
+          metadata: {
+            source: "toolmonsters-lab.com",
+            stripe_payment_id: params.get("stripe_payment_id"),
+            email: params.get("email")
+          }
+        })
+      })
+      .then(response => {
+        if (!response.ok) throw new Error('Erreur DataFast');
+        console.log('🎯 Conversion trackée avec succès');
+      })
+      .catch(error => console.error('❌ Erreur tracking:', error));
+    }
   </script>
 </body>
 </html>
